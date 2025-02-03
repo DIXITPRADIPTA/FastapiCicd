@@ -60,15 +60,20 @@ jobs:
           tags: dixitpradipta/fastapicicd:latest # Replace with your DockerHub username/repository
           cache-from: type=registry,ref=dixitpradipta/fastapicicd:latest
           cache-to: type=registry,ref=dixitpradipta/fastapicicd:latest,mode=max
-      - name: Deploy to production (if needed)
+      - name: Deploy Locally with Ngrok
         run: |
-          # Ensure that SSH_PRIVATE_KEY is added to GitHub Secrets
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/id_rsa
-          chmod 600 /tmp/id_rsa
+          # Start the application in the background
+          nohup python manage.py runserver 0.0.0.0:8000 &
 
-          # Use localhost for local deployment
-          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa user@localhost <<EOF
-            # Assuming your Docker and Docker Compose are set up locally
-            docker-compose down
-            docker-compose up -d
-          EOF
+          # Install and start Ngrok
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok
+          ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
+
+          # Start Ngrok to expose the local server
+          nohup ngrok http 8000 > ngrok.log &
+
+          # Get and display the Ngrok public URL
+          sleep 5  # Wait for Ngrok to start
+          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
