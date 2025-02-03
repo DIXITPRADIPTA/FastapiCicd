@@ -86,6 +86,6 @@ deploy:
 
     - name: Expose with Ngrok
       run: |
-        nohup ngrok http 8000 &  # This runs ngrok in the background
+        nohup ngrok http 8000 &  # This runs ngrok in the background task
         sleep 5  # Wait a few seconds for ngrok to initialize
         echo "Ngrok URL: https://$(curl -s localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')"  # Output the public URL
