@@ -62,7 +62,13 @@ jobs:
           cache-to: type=registry,ref=dixitpradipta/fastapicicd:latest,mode=max
       - name: Deploy to production (if needed)
         run: |
-          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@your-server-ip <<EOF
+          # Ensure that SSH_PRIVATE_KEY is added to GitHub Secrets
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > /tmp/id_rsa
+          chmod 600 /tmp/id_rsa
+
+          # Use localhost for local deployment
+          ssh -o StrictHostKeyChecking=no -i /tmp/id_rsa user@localhost <<EOF
+            # Assuming your Docker and Docker Compose are set up locally
             docker-compose down
             docker-compose up -d
           EOF
