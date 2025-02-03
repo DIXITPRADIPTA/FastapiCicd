@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: fastapicicd
+    ports:
+      - "80:80"  # Map port 80 of the container to port 80 on the host
+    environment:
+      - ENV=production
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge

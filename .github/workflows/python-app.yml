@@ -1,6 +1,3 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Python application
 
 on:
@@ -14,7 +11,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -30,14 +26,11 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
       run: |
-        # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
         pytest
-
 
   deploy:
     runs-on: ubuntu-latest
@@ -64,9 +57,7 @@ jobs:
           cache-to: type=registry,ref=your-dockerhub-username/your-repo-name:latest,mode=max
       - name: Deploy to production (if needed)
         run: |
-          # Example for deploying to a server via SSH (you may need to adjust it based on your deployment method)
-          ssh -o StrictHostKeyChecking=no user@your-server-ip <<EOF
-            docker pull your-dockerhub-username/your-repo-name:latest
+          ssh -o StrictHostKeyChecking=no -i ${{ secrets.SSH_PRIVATE_KEY }} user@your-server-ip <<EOF
             docker-compose down
             docker-compose up -d
           EOF
