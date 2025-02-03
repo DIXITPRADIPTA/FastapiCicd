@@ -74,6 +74,10 @@ jobs:
 
       - name: Authenticate Ngrok
         run: |
+          if [ -z "${{ secrets.NGROK_AUTH_TOKEN }}" ]; then
+            echo "Error: NGROK_AUTH_TOKEN is not set."
+            exit 1
+          fi
           ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
       - name: Start FastAPI with Uvicorn
